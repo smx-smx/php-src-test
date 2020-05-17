@@ -58,6 +58,10 @@
 # endif
 #endif
 
+#if HAVE_NETLINK
+# include <linux/netlink.h>
+#endif
+
 #include <stddef.h>
 
 #include "sockaddr_conv.h"
@@ -87,6 +91,12 @@ ZEND_DECLARE_MODULE_GLOBALS(sockets)
 
 #ifndef PF_INET
 #define PF_INET AF_INET
+#endif
+
+#if HAVE_NETLINK
+# ifndef PF_NETLINK
+#  define PF_NETLINK AF_NETLINK
+# endif
 #endif
 
 #define PHP_NORMAL_READ 0x0001
@@ -409,6 +419,9 @@ static PHP_MINIT_FUNCTION(sockets)
 	REGISTER_LONG_CONSTANT("AF_INET",		AF_INET,		CONST_CS | CONST_PERSISTENT);
 #if HAVE_IPV6
 	REGISTER_LONG_CONSTANT("AF_INET6",		AF_INET6,		CONST_CS | CONST_PERSISTENT);
+#endif
+#if HAVE_NETLINK
+	REGISTER_LONG_CONSTANT("AF_NETLINK",		AF_NETLINK,		CONST_CS | CONST_PERSISTENT);
 #endif
 	REGISTER_LONG_CONSTANT("SOCK_STREAM",	SOCK_STREAM,	CONST_CS | CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("SOCK_DGRAM",	SOCK_DGRAM,		CONST_CS | CONST_PERSISTENT);
@@ -1178,8 +1191,11 @@ PHP_FUNCTION(socket_create)
 #if HAVE_IPV6
 		&& domain != AF_INET6
 #endif
+#if HAVE_NETLINK
+		&& domain != AF_NETLINK
+#endif
 		&& domain != AF_INET) {
-		zend_argument_value_error(1, "must be either AF_UNIX, AF_INET6 or AF_INET");
+		zend_argument_value_error(1, "must be either AF_UNIX, AF_INET6, AF_INET or AF_NETLINK");
 		efree(php_sock);
 		RETURN_THROWS();
 	}
@@ -1381,8 +1397,20 @@ PHP_FUNCTION(socket_bind)
 				break;
 			}
 #endif
+#if HAVE_NETLINK
+	case AF_NETLINK:
+		{
+			struct sockaddr_nl *sa = (struct sockaddr_nl *) sock_type;
+
+			sa->nl_family = AF_NETLINK;
+			sa->nl_pid = getpid();
+
+			retval = bind(php_sock->bsd_socket, (struct sockaddr *)sa, sizeof(struct sockaddr_nl));
+			break;
+		}
+#endif
 		default:
-			zend_argument_value_error(1, "must be either AF_UNIX, AF_INET, or AF_INET6");
+			zend_argument_value_error(1, "must be either AF_UNIX, AF_INET, AF_INET6, or AF_NETLINK");
 			RETURN_THROWS();
 	}
 
