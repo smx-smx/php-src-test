@@ -532,6 +532,16 @@ AC_CACHE_CHECK([for IPv6 support], ac_cv_ipv6_support,
 #include <netinet/in.h>]], [[struct sockaddr_in6 s; struct in6_addr t=in6addr_any; int i=AF_INET6; s; t.s6_addr[0] = 0;]])],
   [ac_cv_ipv6_support=yes], [ac_cv_ipv6_support=no])])
 
+AC_CACHE_CHECK([for netlink support], ac_cv_netlink_support,
+[AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+#include <linux/netlink.h>]], [[struct nlmsghdr msg; int i=AF_NETLINK;]])],
+  [ac_cv_netlink_support=yes], [ac_cv_netlink_support=no])])
+
+if test "$ac_cv_netlink_support" = "yes"; then
+  AC_DEFINE(HAVE_NETLINK, 1, [ ])
+fi
+
+
 dnl Checks for library functions.
 dnl ----------------------------------------------------------------------------
 
