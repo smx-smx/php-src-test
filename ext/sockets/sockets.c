@@ -1403,7 +1403,7 @@ PHP_FUNCTION(socket_bind)
 			struct sockaddr_nl *sa = (struct sockaddr_nl *) sock_type;
 
 			sa->nl_family = AF_NETLINK;
-			sa->nl_pid = getpid();
+			sa->nl_pid = strtoul(addr, NULL, 10);
 
 			retval = bind(php_sock->bsd_socket, (struct sockaddr *)sa, sizeof(struct sockaddr_nl));
 			break;
@@ -1629,6 +1629,9 @@ PHP_FUNCTION(socket_sendto)
 #if HAVE_IPV6
 	struct sockaddr_in6	sin6;
 #endif
+#if HAVE_NETLINK
+	struct sockaddr_nl  snl;
+#endif
 	int					retval;
 	size_t              buf_len, addr_len;
 	zend_long			len, flags, port = 0;
@@ -1687,6 +1690,19 @@ PHP_FUNCTION(socket_sendto)
 			}
 
 			retval = sendto(php_sock->bsd_socket, buf, ((size_t)len > buf_len) ? buf_len : (size_t)len, flags, (struct sockaddr *) &sin6, sizeof(sin6));
+			break;
+#endif
+#if HAVE_NETLINK
+		case AF_NETLINK:
+			if (argc != 5){
+				WRONG_PARAM_COUNT;
+			}
+
+			memset(&snl, 0, sizeof(snl));
+			snl.nl_family = AF_NETLINK;
+			snl.nl_pid = strtoul(addr, NULL, 10);
+
+			retval = sendto(php_sock->bsd_socket, buf, ((size_t)len > buf_len) ? buf_len : (size_t)len, flags, (struct sockaddr *) &snl, sizeof(sin));
 			break;
 #endif
 		default:
