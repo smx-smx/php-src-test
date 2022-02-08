@@ -42,7 +42,7 @@
 #define MICRO_IN_SEC 1000000.00
 #define SEC_IN_MIN 60
 
-#ifdef HAVE_GETTIMEOFDAY
+#if defined(HAVE_GETTIMEOFDAY) && defined(HAVE_DATE)
 static void _php_gettimeofday(INTERNAL_FUNCTION_PARAMETERS, int mode)
 {
 	bool get_as_float = 0;

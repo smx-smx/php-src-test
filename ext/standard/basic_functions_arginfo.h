@@ -736,11 +736,13 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_metaphone, 0, 1, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, max_phonemes, IS_LONG, 0, "0")
 ZEND_END_ARG_INFO()
 
+#if defined(HAVE_DATE)
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_header, 0, 1, IS_VOID, 0)
 	ZEND_ARG_TYPE_INFO(0, header, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, replace, _IS_BOOL, 0, "true")
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, response_code, IS_LONG, 0, "0")
 ZEND_END_ARG_INFO()
+#endif
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_header_remove, 0, 0, IS_VOID, 0)
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, name, IS_STRING, 1, "null")
@@ -1590,6 +1592,7 @@ ZEND_END_ARG_INFO()
 #define arginfo_link arginfo_symlink
 #endif
 
+#if defined(HAVE_DATE)
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_mail, 0, 3, _IS_BOOL, 0)
 	ZEND_ARG_TYPE_INFO(0, to, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO(0, subject, IS_STRING, 0)
@@ -1597,6 +1600,7 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_mail, 0, 3, _IS_BOOL, 0)
 	ZEND_ARG_TYPE_MASK(0, additional_headers, MAY_BE_ARRAY|MAY_BE_STRING, "[]")
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, additional_params, IS_STRING, 0, "\"\"")
 ZEND_END_ARG_INFO()
+#endif
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_abs, 0, 1, MAY_BE_LONG|MAY_BE_DOUBLE)
 	ZEND_ARG_TYPE_MASK(0, num, MAY_BE_LONG|MAY_BE_DOUBLE, NULL)
@@ -1735,7 +1739,7 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_microtime, 0, 0, MAY_BE_STRING|M
 ZEND_END_ARG_INFO()
 #endif
 
-#if defined(HAVE_GETTIMEOFDAY)
+#if defined(HAVE_GETTIMEOFDAY) && defined(HAVE_DATE)
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_gettimeofday, 0, 0, MAY_BE_ARRAY|MAY_BE_DOUBLE)
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, as_float, _IS_BOOL, 0, "false")
 ZEND_END_ARG_INFO()
@@ -2439,6 +2443,7 @@ ZEND_FUNCTION(inet_ntop);
 ZEND_FUNCTION(inet_pton);
 #endif
 ZEND_FUNCTION(metaphone);
+#if defined(HAVE_DATE)
 ZEND_FUNCTION(header);
 ZEND_FUNCTION(header_remove);
 ZEND_FUNCTION(setrawcookie);
@@ -2446,6 +2451,7 @@ ZEND_FUNCTION(setcookie);
 ZEND_FUNCTION(http_response_code);
 ZEND_FUNCTION(headers_sent);
 ZEND_FUNCTION(headers_list);
+#endif
 ZEND_FUNCTION(htmlspecialchars);
 ZEND_FUNCTION(htmlspecialchars_decode);
 ZEND_FUNCTION(html_entity_decode);
@@ -2656,7 +2662,9 @@ ZEND_FUNCTION(symlink);
 #if defined(HAVE_SYMLINK) || defined(PHP_WIN32)
 ZEND_FUNCTION(link);
 #endif
+#if defined(HAVE_DATE)
 ZEND_FUNCTION(mail);
+#endif
 ZEND_FUNCTION(abs);
 ZEND_FUNCTION(ceil);
 ZEND_FUNCTION(floor);
@@ -2699,10 +2707,10 @@ ZEND_FUNCTION(base_convert);
 ZEND_FUNCTION(number_format);
 ZEND_FUNCTION(fmod);
 ZEND_FUNCTION(fdiv);
-#if defined(HAVE_GETTIMEOFDAY)
+#if defined(HAVE_GETTIMEOFDAY) && defined(HAVE_DATE)
 ZEND_FUNCTION(microtime);
 #endif
-#if defined(HAVE_GETTIMEOFDAY)
+#if defined(HAVE_GETTIMEOFDAY) && defined(HAVE_DATE)
 ZEND_FUNCTION(gettimeofday);
 #endif
 #if defined(HAVE_GETRUSAGE)
@@ -3076,6 +3084,7 @@ static const zend_function_entry ext_functions[] = {
 	ZEND_FE(inet_pton, arginfo_inet_pton)
 #endif
 	ZEND_FE(metaphone, arginfo_metaphone)
+#if defined(HAVE_DATE)
 	ZEND_FE(header, arginfo_header)
 	ZEND_FE(header_remove, arginfo_header_remove)
 	ZEND_FE(setrawcookie, arginfo_setrawcookie)
@@ -3083,6 +3092,7 @@ static const zend_function_entry ext_functions[] = {
 	ZEND_FE(http_response_code, arginfo_http_response_code)
 	ZEND_FE(headers_sent, arginfo_headers_sent)
 	ZEND_FE(headers_list, arginfo_headers_list)
+#endif
 	ZEND_FE(htmlspecialchars, arginfo_htmlspecialchars)
 	ZEND_FE(htmlspecialchars_decode, arginfo_htmlspecialchars_decode)
 	ZEND_FE(html_entity_decode, arginfo_html_entity_decode)
@@ -3299,7 +3309,9 @@ static const zend_function_entry ext_functions[] = {
 #if defined(HAVE_SYMLINK) || defined(PHP_WIN32)
 	ZEND_FE(link, arginfo_link)
 #endif
+#if defined(HAVE_DATE)
 	ZEND_FE(mail, arginfo_mail)
+#endif
 	ZEND_FE(abs, arginfo_abs)
 	ZEND_FE(ceil, arginfo_ceil)
 	ZEND_FE(floor, arginfo_floor)
@@ -3342,10 +3354,10 @@ static const zend_function_entry ext_functions[] = {
 	ZEND_FE(number_format, arginfo_number_format)
 	ZEND_FE(fmod, arginfo_fmod)
 	ZEND_FE(fdiv, arginfo_fdiv)
-#if defined(HAVE_GETTIMEOFDAY)
+#if defined(HAVE_GETTIMEOFDAY) && defined(HAVE_DATE)
 	ZEND_FE(microtime, arginfo_microtime)
 #endif
-#if defined(HAVE_GETTIMEOFDAY)
+#if defined(HAVE_GETTIMEOFDAY) && defined(HAVE_DATE)
 	ZEND_FE(gettimeofday, arginfo_gettimeofday)
 #endif
 #if defined(HAVE_GETRUSAGE)
